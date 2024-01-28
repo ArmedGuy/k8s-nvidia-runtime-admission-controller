@@ -1,0 +1,41 @@
+bases:
+- ../../base
+
+resources:
+- certificate.yaml
+
+namespace: default
+
+namePrefix: nvidia-runtime-admission-webhook-
+
+commonLabels:
+  app: nvidia-runtime-admission-webhook
+  kustomize.component: nvidia-runtime-admission-webhook
+  app.kubernetes.io/component: nvidia-runtime-admission-webhook
+  app.kubernetes.io/name: nvidia-runtime-admission-webhook
+
+patchesStrategicMerge:
+- mutating-webhook-configuration.yaml
+- deployment.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+vars:
+# These vars are used to substitute in the namespace, service name and
+# deployment name into the mutating WebHookConfiguration.
+# Since its a CR kustomize isn't aware of those fields and won't
+# transform them.
+# We need the var names to be relatively unique so that when we
+# compose with other applications they won't conflict.
+- name: nvidiaRuntimeHookCertName
+  objref:
+      kind: Certificate
+      group: cert-manager.io
+      version: v1
+      name: cert
+  fieldref:
+    fieldpath: metadata.name
+
+configurations:
+- params.yaml

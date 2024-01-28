@@ -1,0 +1,49 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- deployment.yaml
+- mutating-webhook-configuration.yaml
+- service-account.yaml
+- service.yaml
+commonLabels:
+  app: nvidia-runtime-admission-webhook
+  kustomize.component: nvidia-runtime-admission-webhook
+  app.kubernetes.io/component: nvidia-runtime-admission-webhook
+  app.kubernetes.io/name: nvidia-runtime-admission-webhook
+images:
+- name: docker.io/armedguy/k8s-nvidia-runtime-admission-controller
+  newName: docker.io/armedguy/k8s-nvidia-runtime-admission-controller
+  newTag: latest
+namespace: default
+generatorOptions:
+  disableNameSuffixHash: true
+vars:
+# These vars are used to substitute in the namespace, service name and
+# deployment name into the mutating WebHookConfiguration.
+# Since its a CR kustomize isn't aware of those fields and won't
+# transform them.
+# We need the var names to be relatively unique so that when we
+# compose with other applications they won't conflict.
+- fieldref:
+    fieldPath: metadata.namespace
+  name: nvidiaRuntimeHookNamespace
+  objref:
+    apiVersion: v1
+    kind: Service
+    name: service
+- fieldref:
+    fieldPath: metadata.name
+  name: nvidiaRuntimeHookServiceName
+  objref:
+    apiVersion: v1
+    kind: Service
+    name: service
+- fieldref:
+    fieldPath: metadata.name
+  name: nvidiaRuntimeHookDeploymentName
+  objref:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: deployment
+configurations:
+- params.yaml

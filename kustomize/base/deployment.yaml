@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment
+spec:
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+    spec:
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      containers:
+      - image: armedguy/k8s-nvidia-runtime-admission-controller:latest
+        name: admission-webhook
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8443
+            scheme: HTTPS
+        volumeMounts:
+        - mountPath: /etc/webhook/certs
+          name: webhook-cert
+          readOnly: true
+        ports:
+        - name: https-webhook
+          containerPort: 8443
+      volumes:
+      - name: webhook-cert
+        secret:
+          secretName: nvidia-runtime-webhook-certs
