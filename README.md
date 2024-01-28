@@ -3,7 +3,7 @@ Based on the boilerplate [admission controller by douglasmakey](https://github.c
 
 This controller has one simple purpose: set runtimeClassName: nvidia for any pod that is scheduled with Nvidia GPU resources.
 
-This is especially useful for when systems like Kubeflow is deployed to heterogenous clusters where nvidia runtime cannot be the default across all nodes.
+This is especially useful for when systems like Kubeflow is deployed to heterogenous clusters where the nvidia runtime cannot be the default across all nodes, or for installations like k3s where nvidia runtime is registered as a separate runtime class.
 
 
 ## Deployment
